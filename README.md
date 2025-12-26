@@ -588,12 +588,4 @@ This is an assignment submission. For the actual Lyftr AI product, visit [lyftr.
 
 ---
 
-## 📞 Contact
-
-For questions about this implementation:
-- **Email**: careers@lyftr.ai
-- **Subject**: Backend Assignment – [Your Name]
-
----
-
 **Built with ❤️ using FastAPI, Python, and Docker**

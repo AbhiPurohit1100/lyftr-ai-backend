@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lyftr-ai-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:////data/app.db
+      - LOG_LEVEL=INFO
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET:-testsecret}
+    volumes:
+      - db_data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/ready').read()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+volumes:
+  db_data:
+    driver: local

@@ -83,6 +83,56 @@ async def test_messages_pagination():
 
 
 @pytest.mark.asyncio
+async def test_messages_filter_by_date():
+    """Test /messages filtering by specific date."""
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        # Seed messages on different dates
+        await seed_message(client, {
+            "message_id": "date_filter_1",
+            "from": "+919876543210",
+            "to": "+14155550100",
+            "ts": "2025-01-15T08:30:00Z",
+            "text": "Message on Jan 15"
+        })
+        await seed_message(client, {
+            "message_id": "date_filter_2",
+            "from": "+919876543210",
+            "to": "+14155550100",
+            "ts": "2025-01-15T14:45:00Z",
+            "text": "Another message on Jan 15"
+        })
+        await seed_message(client, {
+            "message_id": "date_filter_3",
+            "from": "+919876543210",
+            "to": "+14155550100",
+            "ts": "2025-01-16T10:00:00Z",
+            "text": "Message on Jan 16"
+        })
+        
+        # Test filtering by 2025-01-15
+        response = await client.get("/messages?date=2025-01-15")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total"] == 2
+        assert len(data["data"]) == 2
+        # Verify both messages are from Jan 15
+        for msg in data["data"]:
+            assert msg["ts"].startswith("2025-01-15")
+        
+        # Test filtering by 2025-01-16
+        response = await client.get("/messages?date=2025-01-16")
+        data = response.json()
+        assert data["total"] == 1
+        assert data["data"][0]["message_id"] == "date_filter_3"
+        
+        # Test filtering by date with no messages
+        response = await client.get("/messages?date=2025-01-20")
+        data = response.json()
+        assert data["total"] == 0
+        assert len(data["data"]) == 0
+
+
+@pytest.mark.asyncio
 async def test_messages_filter_by_from():
     """Test /messages filtering by from parameter."""
     async with AsyncClient(app=app, base_url="http://test") as client:

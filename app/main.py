@@ -313,12 +313,13 @@ async def list_messages(
     from_: Optional[str] = Query(None, alias="from", description="Filter by sender phone number"),
     since: Optional[str] = Query(None, description="Filter by timestamp (ISO-8601)"),
     q: Optional[str] = Query(None, description="Search in message text"),
+    date: Optional[str] = Query(None, description="Filter by specific date (YYYY-MM-DD format)"),
 ):
     """
     List stored messages with pagination and filtering.
     
     - Supports pagination via limit and offset
-    - Filters: from (exact match), since (timestamp >=), q (text search)
+    - Filters: from (exact match), since (timestamp >=), q (text search), date (specific date)
     - Ordered by ts ASC, message_id ASC
     - Returns total count of matching records
     """
@@ -330,6 +331,7 @@ async def list_messages(
             from_msisdn=from_,
             since=since,
             search_text=q,
+            date=date,
         )
     
     return {

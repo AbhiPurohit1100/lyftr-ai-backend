@@ -55,6 +55,7 @@ async def get_messages(
     from_msisdn: Optional[str] = None,
     since: Optional[str] = None,
     search_text: Optional[str] = None,
+    date: Optional[str] = None,
 ) -> Tuple[List[Dict], int]:
     """
     Retrieve messages with pagination and filtering.
@@ -66,6 +67,7 @@ async def get_messages(
         from_msisdn: Filter by sender (exact match)
         since: Filter by timestamp >= since
         search_text: Search in message text (case-insensitive)
+        date: Filter by specific date (YYYY-MM-DD format)
     
     Returns:
         Tuple of (messages list, total count)
@@ -85,6 +87,13 @@ async def get_messages(
     if search_text:
         where_clauses.append("text LIKE ?")
         params.append(f"%{search_text}%")
+    
+    if date:
+        # Filter for messages on specific date (YYYY-MM-DD)
+        # Match timestamps that start with the date (before 'T')
+        where_clauses.append("ts >= ? AND ts < ?")
+        params.append(f"{date}T00:00:00Z")
+        params.append(f"{date}T23:59:59.999999Z")
     
     where_sql = " AND ".join(where_clauses) if where_clauses else "1=1"
     
